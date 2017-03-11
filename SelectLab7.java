@@ -19,15 +19,18 @@ public enum Partitioner {
 // return q such that x = A[q]
 static int Partition(int A[], int p, int r)
 {
-    int q = -1;
+    int q = p;
 
     // TODO: Choose x = A[r]. Swap elements so they are in order
     // first elements < x, then x, then elements > x
-	int x = A[r];
-	q = p;
-	int temp;
-    for(int i = p; i < r - 1; i++) {
-    	if(A[i] < x) {
+
+    // Assigning variable for pivot for convenience
+  	int pivot = A[r];
+  	int temp;
+
+    // Parition algorithm as discussed in class
+    for(int i = p; i <= r - 1; i++) {
+    	if(A[i] < pivot) {
     		temp = A[q];
     		A[q] = A[i];
     		A[i] =  temp;
@@ -50,7 +53,13 @@ static int RandomPartition(int A[], int p, int r)
     int temp = A[i];
     A[i] =  A[r];
     A[r] = temp;
-    
+
+    // Testing if partition was done correctly
+
+    // for(int k: A)
+    //   System.out.print(k + " ");
+    // System.out.println();
+
     return Partition(A,p,r);
 }
 
@@ -98,24 +107,50 @@ static int Select(int[] A, int p, int r, int i, Partitioner partitioner)
     } else { // LINEAR
         q = LinearPartition(A, p, r);
     }
-
+    // TODO: implement recursive Select.
+    // If q equals i, we have found the element
     if(i == q)
     	return A[q];
+    // Else if the array contains only one element, this element must be what we are looking for
+    if (p ==  r)
+      return A[p];
+    // Else search the left half of the new array for the ith smallest element
     if(i < q)
-    	return Select(A, p, q, i, partitioner);
-	return Select(A, q + 1, r, i - q, partitioner);
-    // TODO: implement recursive Select.
+    	return Select(A, p, q - 1, i, partitioner);
+    // Else search the right half of the new array for the (i - q)th smallest element. However this is still indexed relative to the full array, we look for ith smallest
+  	return Select(A, q + 1, r, i, partitioner);
 }
 
 static boolean TestSelect()
 {
     System.out.println("Running Select tester");
     // TODO: implement tester for Select, use it to test both random, linear, and bad pivot selection.
-    // Call select with Partitioner.RANDOM
-    // Call select with Partitioner.LINEAR
-    // Call select with Partitioner.BAD
+    static final int SIZE = 100;
+    // Random length to ensure correctness. Bounds within 100 to ensure reasonable computation time
+    
+    int length = rand.nextInt(SIZE);
+    int[] testArray = GenerateA(length);
+    // Random index to search for
+    int index = rand.nextInt(length);
+    int result;
 
-    return false;
+    // Call select with Partitioner.RANDOM
+    result = Select(testArray, 0, length - 1, index, Partitioner.RANDOM);
+    if(result != index)
+      return false;
+
+    // Call select with Partitioner.LINEAR
+    // RandomlyPermute(testArray);
+    // index = Select(0, 20, 9, Partitioner.LINEAR);
+    // if(index != 9)
+    //   return false;
+
+    // Call select with Partitioner.BAD
+    RandomlyPermute(testArray);
+    index = Select(testArray, 0, length - 1, index, Partitioner.BAD);
+    if(result != index)
+      return false;
+    return true;
 }
 
 // helper function to random permute array A
@@ -160,7 +195,7 @@ static double SelectionExperiment(int[] A, Partitioner partitioner)
         System.arraycopy(A, 0, CopyA, 0, A.length);
         long startMillis = System.currentTimeMillis();
         RunSelectOnce(CopyA, partitioner);
-        totalMillis += (System.currentTimeMillis() - startMillis); 
+        totalMillis += (System.currentTimeMillis() - startMillis);
     }
 
     return (((float)totalMillis)/numRuns)/1000.0;
@@ -208,9 +243,9 @@ static void RunTimeSelect(boolean noBad)
 public static void main(String[] args)
 {
     boolean runRandomizedSelect = true;
-    
-    int testPartition[] = {1, 2, 4, 3 , 9, 7};
-    System.out.println(RandomPartition(testPartition, 0, 5));
+
+    int testPartition[] = {1, 2, 4, 3 , 7, 9};
+    System.out.println(Partition(testPartition, 0, 5));
     for(int k: testPartition)
     	System.out.print(k + " ");
     System.out.println();
@@ -219,6 +254,8 @@ public static void main(String[] args)
         if (args[0].equals("--test")) {
             runRandomizedSelect = false;
             boolean testPassed = TestSelect();
+            if(testPassed)
+              System.out.println("All tests passed!");
         } else if (args[0].equals("--time=nobad")) {
             RunTimeSelect(true /* exclude bad partition from experiments */);
             runRandomizedSelect = false;
