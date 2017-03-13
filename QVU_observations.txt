@@ -1,0 +1,74 @@
+I. Challenges faced when coding the lab:
+
+	1. Coding the Partition method was particularly tricky since some edge cases have to be taken into consideration.
+
+	2. Coding the Linear Partition also involved some very tricky conceptual processes, since the function itself was called by Select, however at the same time it also calls Select on another array of medians that it created.
+
+II. Analysis of results
+Sample output 1 from running --test=nobad
+
+Timing Select
+              n   Random   Linear
+              1     0.00     0.00 
+              2     0.00     0.01 
+              4     0.00     0.00 
+              8     0.00     0.00 
+             16     0.00     0.00 
+             32     0.00     0.00 
+             64     0.00     0.00 
+            128     0.00     0.00 
+            256     0.00     0.00 
+            512     0.00     0.00 
+           1024     0.00     0.00 
+           2048     0.00     0.00 
+           4096     0.00     0.00 
+           8192     0.00     0.00 
+          16384     0.00     0.00 
+          32768     0.00     0.00 
+          65536     0.00     0.01 
+         131072     0.00     0.01 
+         262144     0.00     0.02 
+         524288     0.01     0.04 
+        1048576     0.01     0.09 
+        2097152     0.02     0.18 
+        4194304     0.05     0.35 
+        8388608     0.09     0.69 
+       16777216     0.22     1.40 
+       33554432     0.45     2.80 
+       67108864     0.82     5.85 
+      134217728     1.69    11.70 
+
+Sample output 2 from running --test=nobad
+
+Timing Select
+              n   Random   Linear
+              1     0.00     0.00 
+              2     0.00     0.01 
+              4     0.00     0.00 
+              8     0.00     0.00 
+             16     0.00     0.00 
+             32     0.00     0.00 
+             64     0.00     0.00 
+            128     0.00     0.00 
+            256     0.00     0.00 
+            512     0.00     0.00 
+           1024     0.00     0.00 
+           2048     0.00     0.00 
+           4096     0.00     0.00 
+           8192     0.00     0.00 
+          16384     0.00     0.00 
+          32768     0.00     0.00 
+          65536     0.00     0.01 
+         131072     0.00     0.01 
+         262144     0.00     0.02 
+         524288     0.01     0.04 
+        1048576     0.01     0.09 
+        2097152     0.02     0.17 
+        4194304     0.07     0.35 
+        8388608     0.09     0.68 
+       16777216     0.24     1.41 
+       33554432     0.50     2.77 
+       67108864     0.67     5.51 
+      134217728     1.99    11.14 
+
+From the results, we see that LinearPartition takes more time to complete than RandomPartition for the same problem size. This is understandable as we do much more work each time we make a call to LinearPartition as opposed to some simple calculations in RandomPartition. This might also indicate that sorting multiple subarrays of size 5 might not be as negligible as it is in theory. The runtime of LinearPartition is quite similar across individual tests, as opposed to quite erratic behavior of RandomPartition (for problem of the largest size for example, it can either take 1.69 time unit in set 1 or 1.99 time unit in set 2, and the 0.3 unit time difference is a significant percentage of the total runtime). I also noticed that the growth for LinearPartition is truly linear, as it roughly doubles every time the amount of input is doubled. For RandomPartition, sometimes we get lucky and the growth grows a little bit slower than a factor of 2, however if we are unlucky it might grow a little more than a factor of 2 (0.09 to 0.22 for example, from input size of 8388608 to 16777216 in sample set 1). In other words, if we decide to implement LinearPartition, we trade a little bit more computation time for each Partition in order to make our algorithm grow more predictably as the size of the input grows.

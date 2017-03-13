@@ -67,14 +67,19 @@ static int RandomPartition(int A[], int p, int r)
 // Compute the median of medians and swap it with A[r]
 static int LinearPartition(int[] A, int p, int r)
 {
+	
     // TODO: compute median of medians, swap with A[r]
-
+	
+	// Base case, if the array has only one element, then it must be the median, and it is at index p = r 
+	if(p == r)
+		return r;
     // Compute the number of columns needed
     int noColumns;
-    if (0 == A.length % 5)
-      noColumns = (A.length / 5);
+    int length = r - p + 1;
+    if (0 == length % 5)
+      noColumns = (length / 5);
     else
-      noColumns = (A.length / 5) + 1;
+      noColumns = (length / 5) + 1;
 
     // Create an array to store the medians of medians
     int[] medians = new int[noColumns];
@@ -82,27 +87,33 @@ static int LinearPartition(int[] A, int p, int r)
 
     // Recommendation: sort sequences of 5 with insertion sort
     // or use Arrays.sort(A, start, end)
-    for(int i = 0; i < A.length - 5; i = i + 5) {
-      start = i;
-      end = i + 5;
-      Arrays.sort(A, start, end);
-
-      // Add the median of the current subarray to the medians array
-      medians[i/5] = A[start + 2];
+    if(length <= 5) {
+    	Arrays.sort(A, p, r + 1);
+    	medians[0] = A[length/2];
     }
+    else {
+		for(int i = p; i < r - 5; i = i + 5) {
+		  start = i;
+		  end = i + 5;
+		  Arrays.sort(A, start, end);
 
-    // Account for the fact that the length of the original array might not be equal to a multiple of 5
-    if(A.length % 5 != 0 && A.length > 5) {
-      start = A.length - (A.length % 5)  - 1;
-      end = A.length - 1;
-      Arrays.sort(A, start, end);
-      medians[noColumns - 1] = A[(start + end) / 2];
+		  // Add the median of the current subarray to the medians array
+		  medians[(i - p) /5] = A[start + 2];
+		}
+
+		// Account for the fact that the length of the original array might not be equal to a multiple of 5
+		if(length % 5 != 0) {
+		  start = length - (length % 5)  - 1;
+		  end = length - 1;
+		  Arrays.sort(A, start, end);
+		  medians[noColumns - 1] = A[(start + end) / 2];
+		}
     }
-
+    
     // Selecting the median of medians
-    int median = Select(medians, 0, noColumns - 1, noColumns / 2, Partitioner.RANDOM);
-
-    for(int i = 0; i < A.length; i++) {
+    int median = Select(medians, 0, noColumns - 1, noColumns / 2, Partitioner.LINEAR);
+    		
+    for(int i = p; i < r; i++) {
       // Swapping the median of medians with the last element
       if(A[i] == median) {
         A[i] = A[r];
