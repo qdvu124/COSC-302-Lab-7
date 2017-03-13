@@ -4,6 +4,7 @@
 */
 
 import java.util.Random;
+import java.util.Arrays;
 
 class SelectLab7 {
 
@@ -68,8 +69,48 @@ static int LinearPartition(int[] A, int p, int r)
 {
     // TODO: compute median of medians, swap with A[r]
 
+    // Compute the number of columns needed
+    int noColumns;
+    if (0 == A.length % 5)
+      noColumns = (A.length / 5);
+    else
+      noColumns = (A.length / 5) + 1;
+
+    // Create an array to store the medians of medians
+    int[] medians = new int[noColumns];
+    int start, end;
+
     // Recommendation: sort sequences of 5 with insertion sort
     // or use Arrays.sort(A, start, end)
+    for(int i = 0; i < A.length - 5; i = i + 5) {
+      start = i;
+      end = i + 5;
+      Arrays.sort(A, start, end);
+
+      // Add the median of the current subarray to the medians array
+      medians[i/5] = A[start + 2];
+    }
+
+    // Account for the fact that the length of the original array might not be equal to a multiple of 5
+    if(A.length % 5 != 0 && A.length > 5) {
+      start = A.length - (A.length % 5)  - 1;
+      end = A.length - 1;
+      Arrays.sort(A, start, end);
+      medians[noColumns - 1] = A[(start + end) / 2];
+    }
+
+    // Selecting the median of medians
+    int median = Select(medians, 0, noColumns - 1, noColumns / 2, Partitioner.RANDOM);
+
+    for(int i = 0; i < A.length; i++) {
+      // Swapping the median of medians with the last element
+      if(A[i] == median) {
+        A[i] = A[r];
+        A[r] = median;
+        break;
+      }
+    }
+
     return Partition(A,p,r);
 }
 
@@ -125,9 +166,9 @@ static boolean TestSelect()
 {
     System.out.println("Running Select tester");
     // TODO: implement tester for Select, use it to test both random, linear, and bad pivot selection.
-    static final int SIZE = 100;
+    final int SIZE = 100;
     // Random length to ensure correctness. Bounds within 100 to ensure reasonable computation time
-    
+
     int length = rand.nextInt(SIZE);
     int[] testArray = GenerateA(length);
     // Random index to search for
